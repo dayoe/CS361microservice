@@ -7,6 +7,7 @@ app.engine('.hbs', handlebars({
 }));
 app.use(express.static('public'));
 app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 app.set('port', 3003);
 app.set('view engine', '.hbs');
 
@@ -14,6 +15,12 @@ app.set('view engine', '.hbs');
 
 app.get('/', function (req, res){
   res.render('index');
+});
+
+app.post('/', function (req, res){
+  let data = JSON.parse(req.body);
+
+  res.render('index', data);
 });
 
 app.use(function(req,res){
