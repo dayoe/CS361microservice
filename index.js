@@ -1,7 +1,9 @@
+// Setting up packages
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
 
+// package config
 app.engine('.hbs', handlebars({
     extname: ".hbs"
 }));
@@ -13,14 +15,14 @@ app.set('view engine', '.hbs');
 
 //app.use('/', require('./service.js'));
 
-app.get('/', function (req, res){
+/*app.get('/', function (req, res){
   res.render('index');
-});
+}); */
 
-app.post('/', function (req, res){
-  let data = JSON.parse(req.body);
+app.get('/', function (req, res){
+//  let data = JSON.parse(req.body);
 
-  res.render('index', data);
+  res.render('index');
 });
 
 app.use(function(req,res){
@@ -36,5 +38,5 @@ app.use(function(err, req, res, next){
 });
 
 app.listen(app.get('port'), function(){
-  console.log('Express started on port ' + app.get('port') + '; press Ctrl-C to terminate.');
+  console.log('Express started at http://localhost:' + app.get('port') + '; press Ctrl-C to terminate.');
 });

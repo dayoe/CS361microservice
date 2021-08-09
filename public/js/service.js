@@ -1,12 +1,3 @@
-module.exports = function (){
-    const express = require('express');
-    const router = express.Router();
-
-
-}
-
-
-
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart);
 
