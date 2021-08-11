@@ -1,3 +1,24 @@
+<!-- Making table for JS file to access -->
+<div>
+    <table>
+        <thead>
+        <tr>
+            {{#each data.column}}
+                <td class="title" data-type="{{this.type}}">{{title}}</td>
+            {{/each}}
+        </tr>
+        </thead>
+        <tbody>
+        {{#each data.row}}
+            <tr>
+                <td class="name">{{name}}</td>
+                <td class="value">{{value}}</td>
+            </tr>
+        {{/each}}
+        </tbody>
+    </table>
+</div>
+
 <!-- Loading JS file -->
 <script src="/js/service.js"></script>
 

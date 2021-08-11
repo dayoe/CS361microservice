@@ -1,12 +1,14 @@
-/*module.exports = function (){
-    const express = require('express');
-    const router = express.Router();
+//let columns = document.getElementsByClassName()
 
+// Making Handlbars helper
+/*Handlebars.registerHelper('makeCol', function(context,) {
+    let ret = "";
+    for ( let i = 0; i < context.length; i++) {
+        ret +=
+    }
+}) */
 
-}
-*/
-
-
+// Setting up charts
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart).then(response => {
     console.log(response);
@@ -14,13 +16,14 @@ google.charts.setOnLoadCallback(drawChart).then(response => {
     console.log(e);
 });
 
+// Drawing chart
 function drawChart() {
     var data = new google.visualization.DataTable();
     data.addColumn('string', 'Topping');
     data.addColumn('number', 'Slices');
     data.addRows([
         ['Mushrooms', 3],
-        ['Onions', 1],
+        ['Onions', 1.25],
         ['Olives', 1],
         ['Zucchini', 1],
         ['Pepperoni', 2]

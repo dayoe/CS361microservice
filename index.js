@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
+//const bodyParser = require('body-parser') might need this for nested JSON
 
 // package config
 app.engine('.hbs', handlebars({
@@ -15,14 +16,33 @@ app.set('view engine', '.hbs');
 
 //app.use('/', require('./service.js'));
 
-/*app.get('/', function (req, res){
-  res.render('index');
-}); */
-
 app.get('/', function (req, res){
-//  let data = JSON.parse(req.body);
+  let context = {};
+  context.data = {
+    name: "foo",
+    value: "bar",
+  }
+  res.render('index', context);
+});
 
-  res.render('index');
+app.post('/', function (req, res){
+  let context = {};
+  // Start of code to iterate through request body
+/*  for (let i = 0; i < req.body.column.length; i++) {
+    context.column = [];
+  } */
+  let column = {
+    type: req.body.column.type,
+    title: req.body.column.title,
+  };
+  let row = {
+    name: req.body.row.name,
+    value: req.body.row.value,
+  };
+  //context.column = column;
+  //context.row = row;
+  context.data = req.body
+  res.render('index', context);
 });
 
 app.use(function(req,res){
