@@ -2,7 +2,7 @@
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
-//const bodyParser = require('body-parser') might need this for nested JSON
+const url = require('url');
 
 // package config
 app.engine('.hbs', handlebars({
@@ -18,19 +18,12 @@ app.set('view engine', '.hbs');
 
 app.get('/', function (req, res){
   let context = {};
-  context.data = {
-    name: "foo",
-    value: "bar",
-  }
-  res.render('index', context);
-});
+  res.render('index');
+}); 
 
-app.post('/circle', function (req, res){
+// Change back to POST
+app.post('/', function (req, res){
   let context = {};
-  // Start of code to iterate through request body
-/*  for (let i = 0; i < req.body.column.length; i++) {
-    context.column = [];
-  } */
   let column = {
     type: req.body.column.type,
     title: req.body.column.title,
@@ -39,16 +32,16 @@ app.post('/circle', function (req, res){
     name: req.body.row.name,
     value: req.body.row.value,
   };
-  //context.column = column;
-  //context.row = row;
   context.data = req.body;
   res.render('index', context);
 });
 
 // Change back to POST
-app.post('/scatter', function (req, res) {
+app.get('/scatter', function (req, res) {
   let context = {};
-  context.data = req.body;
+  context.data = url.parse(req.url,true).query
+  console.log(context.data);
+  //context.data = req.body;
   res.render('scatter', context);
 });
 

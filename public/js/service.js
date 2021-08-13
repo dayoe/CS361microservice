@@ -1,13 +1,3 @@
-//let columns = document.getElementsByClassName()
-
-// Making Handlbars helper
-/*Handlebars.registerHelper('makeCol', function(context,) {
-    let ret = "";
-    for ( let i = 0; i < context.length; i++) {
-        ret +=
-    }
-}) */
-
 // Setting up charts
 google.charts.load('current', {'packages':['corechart']});
 google.charts.setOnLoadCallback(drawChart).then(response => {
@@ -35,6 +25,10 @@ function drawChart() {
                     'height':300};
 
     // Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+    var chart = new google.visualization.PieChart(document.getElementById('uriLoc'));
+    google.visualization.events.addListener(chart, 'ready', () => {
+        let chartUri = chart.getImageURI();
+        document.getElementById('uriLoc').innerText = chartUri;
+    });
     chart.draw(data, options);
 }
