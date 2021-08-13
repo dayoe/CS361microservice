@@ -25,7 +25,7 @@ app.get('/', function (req, res){
   res.render('index', context);
 });
 
-app.post('/', function (req, res){
+app.post('/circle', function (req, res){
   let context = {};
   // Start of code to iterate through request body
 /*  for (let i = 0; i < req.body.column.length; i++) {
@@ -41,8 +41,15 @@ app.post('/', function (req, res){
   };
   //context.column = column;
   //context.row = row;
-  context.data = req.body
+  context.data = req.body;
   res.render('index', context);
+});
+
+// Change back to POST
+app.post('/scatter', function (req, res) {
+  let context = {};
+  context.data = req.body;
+  res.render('scatter', context);
 });
 
 app.use(function(req,res){
