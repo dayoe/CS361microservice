@@ -2,7 +2,10 @@
 const express = require('express');
 const app = express();
 const handlebars = require('express-handlebars');
+const fs = require('fs');
 const url = require('url');
+const cors = require('cors');
+const chartsNode = require('google-charts-node');
 
 // package config
 app.engine('.hbs', handlebars({
@@ -10,39 +13,82 @@ app.engine('.hbs', handlebars({
 }));
 app.use(express.static('public'));
 app.use(express.json());
-app.use(express.urlencoded({extended: true}));
+app.use(cors());
 app.set('port', 3003);
 app.set('view engine', '.hbs');
 
-//app.use('/', require('./service.js'));
 
-app.get('/', function (req, res){
-  let context = {};
-  res.render('index');
+app.post('/', async function (req, res){
+  function drawChart() {
+    var data = new google.visualization.DataTable();
+    data.addColumn('string', 'Topping');
+    data.addColumn('number', 'Slices');
+    data.addRows([
+      ['Mushrooms', 3],
+      ['Onions', 1.25],
+      ['Olives', 1],
+      ['Zucchini', 1],
+      ['Pepperoni', 2]
+    ]);
+
+    // Set chart options
+    var options = {'title':'How Much Pizza I Ate Last Night',
+      'width':400,
+      'height':300};
+
+    // Instantiate and draw our chart, passing in some options.
+    var chart = new google.visualization.PieChart(container);
+
+    chart.draw(data, options);
+  }
+
+  const image = await chartsNode.render(drawChart, {
+    width: 400,
+    height: 300,
+  });
+
+  fs.writeFileSync('./public/img/charts/chart.png', image);
+  res.sendFile('/public/img/charts/chart.png', { root: __dirname });
 }); 
 
 // Change back to POST
-app.post('/', function (req, res){
-  let context = {};
-  let column = {
-    type: req.body.column.type,
-    title: req.body.column.title,
-  };
-  let row = {
-    name: req.body.row.name,
-    value: req.body.row.value,
-  };
-  context.data = req.body;
-  res.render('index', context);
-});
+app.post('/scatter', async function (req, res) {
+    let xtitle, ytitle, xmin, xmax, ymin, ymax, points
 
-// Change back to POST
-app.get('/scatter', function (req, res) {
-  let context = {};
-  context.data = url.parse(req.url,true).query
-  console.log(context.data);
-  //context.data = req.body;
-  res.render('scatter', context);
+    xtitle = req.body['xaxis']['title'];
+    ytitle = req.body['yaxis']['title'];
+    xmin = Number(req.body['xaxis']['min']);
+    xmax = Number(req.body['xaxis']['max']);
+    ymin = Number(req.body['yaxis']['min']);
+    ymax = Number(req.body['yaxis']['max']);
+  let xaxis = [xtitle, xmin, xmax];
+  let yaxis = [ytitle, ymin, ymax];
+  function drawChart() {
+
+      let data = new google.visualization.arrayToDataTable([
+      [xaxis[0], 'Weight'],
+      [8, 1],
+      [3, 2]
+    ]);
+
+    let options = {
+      title: 'Age vs. Weight comparison',
+      hAxis: {title: 'Age', minValue: 0, maxValue: 15},
+      vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
+      legend: 'none'
+    };
+
+    let chart = new google.visualization.ScatterChart(container);
+    chart.draw(data, options);
+  }
+
+  const image = await chartsNode.render(drawChart, {
+    width: 400,
+    height: 300,
+  });
+
+  fs.writeFileSync('./public/img/charts/chart.png', image);
+  res.sendFile('/public/img/charts/chart.png', { root: __dirname });
 });
 
 app.use(function(req,res){
