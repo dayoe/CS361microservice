@@ -53,36 +53,49 @@ app.post('/', async function (req, res){
 
 // Change back to POST
 app.post('/scatter', async function (req, res) {
-    let xtitle, ytitle, xmin, xmax, ymin, ymax, points
 
+    // Tying POST data to variables
+    let title, xtitle, ytitle, xmin, xmax, ymin, ymax, points
+    title = req.body['title'];
     xtitle = req.body['xaxis']['title'];
     ytitle = req.body['yaxis']['title'];
     xmin = Number(req.body['xaxis']['min']);
     xmax = Number(req.body['xaxis']['max']);
     ymin = Number(req.body['yaxis']['min']);
     ymax = Number(req.body['yaxis']['max']);
-  let xaxis = [xtitle, xmin, xmax];
-  let yaxis = [ytitle, ymin, ymax];
-  function drawChart() {
+    points = req.body['points'];
 
+    let postData = [
+        xtitle, ytitle,
+        points
+    ];
+
+   let postOptions = {
+       title: title,
+       hAxis: {title: xtitle, minValue: xmin, maxValue: xmax},
+       vAxis: {title: ytitle, minValue: ymin, maxValue: ymax},
+       legend: 'none'
+   };
+
+  function drawChart(postData, postOptions) {
       let data = new google.visualization.arrayToDataTable([
-      [xaxis[0], 'Weight'],
-      [8, 1],
-      [3, 2]
+      [postData[0], postData[1]],
+      [postData[2]]
     ]);
 
     let options = {
-      title: 'Age vs. Weight comparison',
-      hAxis: {title: 'Age', minValue: 0, maxValue: 15},
+      title: postOptions[title],
+      hAxis: postOptions[hAxis],
       vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
       legend: 'none'
     };
+
 
     let chart = new google.visualization.ScatterChart(container);
     chart.draw(data, options);
   }
 
-  const image = await chartsNode.render(drawChart, {
+  const image = await chartsNode.render(function () {drawChart(postData, postOptions)}, {
     width: 400,
     height: 300,
   });
