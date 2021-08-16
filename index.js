@@ -51,9 +51,7 @@ app.post('/', async function (req, res){
   res.sendFile('/public/img/charts/chart.png', { root: __dirname });
 }); 
 
-// Change back to POST
 app.post('/scatter', async function (req, res) {
-
     // Tying POST data to variables
     let title, xtitle, ytitle, xmin, xmax, ymin, ymax, points
     title = req.body['title'];
@@ -64,38 +62,72 @@ app.post('/scatter', async function (req, res) {
     ymin = Number(req.body['yaxis']['min']);
     ymax = Number(req.body['yaxis']['max']);
     points = req.body['points'];
-
     let postData = [
         xtitle, ytitle,
         points
     ];
+    //console.log(postData);
 
-   let postOptions = {
-       title: title,
-       hAxis: {title: xtitle, minValue: xmin, maxValue: xmax},
-       vAxis: {title: ytitle, minValue: ymin, maxValue: ymax},
-       legend: 'none'
-   };
+    function makePostData () {
+        return postData;
+    }
+    let postOptions = {
+        title: title,
+        hAxis: {title: xtitle, minValue: xmin, maxValue: xmax},
+        vAxis: {title: ytitle, minValue: ymin, maxValue: ymax},
+        legend: 'none'
+    };
+    //console.log(postOptions);
+    function makePostOptions () {
+        return postOptions;
+    }
+    let x = 42;
+    function test() {
+        console.log(x);
+    }
+    test();
 
-  function drawChart(postData, postOptions) {
-      let data = new google.visualization.arrayToDataTable([
-      [postData[0], postData[1]],
-      [postData[2]]
+    const drawChart = `
+      const data = new google.visualization.arrayToDataTable([
+      [${postData[0]}, ${postData[1]}],
+      [${postData[2]}]
     ]);
 
-    let options = {
-      title: postOptions[title],
-      hAxis: postOptions[hAxis],
+    const options = {
+      title: ${postOptions['title']},
+      hAxis: ${postOptions['hAxis']},
       vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
       legend: 'none'
     };
 
+    const chart = new google.visualization.BarChart(container);
+    chart.draw(data, options);
+    `;
 
-    let chart = new google.visualization.ScatterChart(container);
+/*
+  function drawChart() {
+      console.log('printing x: ' + x);
+      const data = new google.visualization.arrayToDataTable([
+      [postData[0], postData[1]],
+      [postData[2]]
+    ]);
+
+    const options = {
+      title: postOptions['title'],
+      hAxis: postOptions['hAxis'],
+      vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
+      legend: 'none'
+    };
+
+    const chart = new google.visualization.BarChart(container);
     chart.draw(data, options);
   }
 
-  const image = await chartsNode.render(function () {drawChart(postData, postOptions)}, {
+ */
+
+  //const postData = await makePostData();
+
+  const image = await chartsNode.render(drawChart, {
     width: 400,
     height: 300,
   });
