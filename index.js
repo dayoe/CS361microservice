@@ -19,39 +19,75 @@ app.set('view engine', '.hbs');
 
 
 app.post('/', async function (req, res){
-  function drawChart() {
-    var data = new google.visualization.DataTable();
-    data.addColumn('string', 'Topping');
-    data.addColumn('number', 'Slices');
-    data.addRows([
-      ['Mushrooms', 3],
-      ['Onions', 1.25],
-      ['Olives', 1],
-      ['Zucchini', 1],
-      ['Pepperoni', 2]
-    ]);
+    // Tying POST data to variables
+    // Iterating through columns and rows
 
-    // Set chart options
-    var options = {'title':'How Much Pizza I Ate Last Night',
-      'width':400,
-      'height':300};
+    /*
+    for (let i = 0; i < req.body['column'].length; i++) {
+        let colNum[i]Type = req.body['column'][i]['type'];
+        let colNum[i]Title = req.body['column'][i]['title'];
+    }
+    for (let j = 0; j < req.body['row'].length; j++) {
+        let rowNum[i]Name = req.body['row'][i]['name'];
+        let rowNum[i]Value = req.body['row'][i]['value'];
+    }
+     */
 
-    // Instantiate and draw our chart, passing in some options.
-    var chart = new google.visualization.PieChart(container);
+    // Creating new 'data.addColumn' strings for each column in request body
+    let columns = ``;
+    function addingCols() {
+        for (let i = 0; i < req.body['column'].length; i++) {
+            columns.concat(`data.addColumn('`, req.body['column'][i]['type'], `', '`, req.body['column'][i]['title'],
+                `'); `)
+        }
+    }
+    addingCols();
 
-    chart.draw(data, options);
-  }
+    // Creating new 'data.addRows' strings for each row in request body
+    let rows = `data.addRows([`;
+    function addingRows() {
+        for (let j = 0; j < req.body['row'].length; j++) {
+            rows.concat(`['`, req.body['row'][j]['name'], `', `, req.body['row'][j]['value'],
+                `], `)
+        }
+        rows.concat(`]);`)
+    }
+    addingRows();
 
-  const image = await chartsNode.render(drawChart, {
-    width: 400,
-    height: 300,
-  });
+    let options = {
+        'title': req.body['option']['title'],
+        'width': req.body['option']['width'],
+        'height': req.body['option']['height'],
+    };
 
-  fs.writeFileSync('./public/img/charts/chart.png', image);
-  res.sendFile('/public/img/charts/chart.png', { root: __dirname });
+    // FIGURE OUT HOW TO SET CORRECT AMOUNT OF COLUMNS/ROWS
+    const drawChart = `
+        var data = new google.visualization.DataTable();
+        ${columns}
+        ${rows}
+    
+        // Set chart options
+        var options = {'title':'${options['title']},
+          'width':${options['width']},
+          'height':${options['height']}};
+    
+        // Instantiate and draw our chart, passing in some options.
+        var chart = new google.visualization.PieChart(container);
+    
+        chart.draw(data, options); 
+    `;
+
+    const image = await chartsNode.render(drawChart, {
+        width: 400,
+        height: 300,
+    });
+
+    fs.writeFileSync('./public/img/charts/chart.png', image);
+    res.sendFile('/public/img/charts/chart.png', { root: __dirname });
 }); 
 
 app.post('/scatter', async function (req, res) {
+    //console.log(req.body);
     // Tying POST data to variables
     let title, xtitle, ytitle, xmin, xmax, ymin, ymax, points
     title = req.body['title'];
@@ -62,70 +98,23 @@ app.post('/scatter', async function (req, res) {
     ymin = Number(req.body['yaxis']['min']);
     ymax = Number(req.body['yaxis']['max']);
     points = req.body['points'];
-    let postData = [
-        xtitle, ytitle,
-        points
-    ];
-    //console.log(postData);
-
-    function makePostData () {
-        return postData;
-    }
-    let postOptions = {
-        title: title,
-        hAxis: {title: xtitle, minValue: xmin, maxValue: xmax},
-        vAxis: {title: ytitle, minValue: ymin, maxValue: ymax},
-        legend: 'none'
-    };
-    //console.log(postOptions);
-    function makePostOptions () {
-        return postOptions;
-    }
-    let x = 42;
-    function test() {
-        console.log(x);
-    }
-    test();
 
     const drawChart = `
-      const data = new google.visualization.arrayToDataTable([
-      [${postData[0]}, ${postData[1]}],
-      [${postData[2]}]
+    let data = new google.visualization.arrayToDataTable([
+      ['${xtitle}', '${ytitle}'],
+      ${points}
     ]);
 
-    const options = {
-      title: ${postOptions['title']},
-      hAxis: ${postOptions['hAxis']},
-      vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
+    let options = {
+      title: '${title}',
+      hAxis: {title: '${xtitle}', minValue: ${xmin}, maxValue: ${xmax}},
+      vAxis: {title: '${ytitle}', minValue: ${ymin}, maxValue: ${ymax}},
       legend: 'none'
     };
 
-    const chart = new google.visualization.BarChart(container);
+    let chart = new google.visualization.ScatterChart(container);
     chart.draw(data, options);
     `;
-
-/*
-  function drawChart() {
-      console.log('printing x: ' + x);
-      const data = new google.visualization.arrayToDataTable([
-      [postData[0], postData[1]],
-      [postData[2]]
-    ]);
-
-    const options = {
-      title: postOptions['title'],
-      hAxis: postOptions['hAxis'],
-      vAxis: {title: 'Weight', minValue: 0, maxValue: 15},
-      legend: 'none'
-    };
-
-    const chart = new google.visualization.BarChart(container);
-    chart.draw(data, options);
-  }
-
- */
-
-  //const postData = await makePostData();
 
   const image = await chartsNode.render(drawChart, {
     width: 400,
