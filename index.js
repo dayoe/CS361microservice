@@ -64,34 +64,14 @@ app.post('/', async function (req, res){
     
         chart.draw(data, options); 
     `;
-    console.log(drawChart);
-
-    /*
-    const drawChart = `
-      var data = new google.visualization.DataTable();
-      data.addColumn('string', 'Topping'); data.addColumn('number', 'Slices');
-      data.addRows([['Mushrooms', 3], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2]]);
-
-      // Set chart options
-      var options = {'title':'How Much Pizza I Ate Last Night',
-                     'width':400,
-                     'height':300};
-
-      // Instantiate and draw our chart, passing in some options.
-      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
-      chart.draw(data, options);
-    `;
-
-     */
 
     const image = await chartsNode.render(drawChart, {
-        width: 400,
-        height: 300,
+        width: options['width'],
+        height: options['height'],
     });
 
     fs.writeFileSync('./public/img/charts/chart.png', image);
     res.sendFile('/public/img/charts/chart.png', { root: __dirname });
-    console.log('Success! I think...');
 }); 
 
 app.post('/scatter', async function (req, res) {
