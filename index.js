@@ -20,37 +20,26 @@ app.set('view engine', '.hbs');
 
 app.post('/', async function (req, res){
     // Tying POST data to variables
-    // Iterating through columns and rows
-
-    /*
-    for (let i = 0; i < req.body['column'].length; i++) {
-        let colNum[i]Type = req.body['column'][i]['type'];
-        let colNum[i]Title = req.body['column'][i]['title'];
-    }
-    for (let j = 0; j < req.body['row'].length; j++) {
-        let rowNum[i]Name = req.body['row'][i]['name'];
-        let rowNum[i]Value = req.body['row'][i]['value'];
-    }
-     */
 
     // Creating new 'data.addColumn' strings for each column in request body
     let columns = ``;
     function addingCols() {
         for (let i = 0; i < req.body['column'].length; i++) {
-            columns.concat(`data.addColumn('`, req.body['column'][i]['type'], `', '`, req.body['column'][i]['title'],
-                `'); `)
+            columns += `data.addColumn('` + req.body['column'][i]['type'] + `', '` + req.body['column'][i]['title'] +
+                `'); `
         }
     }
     addingCols();
+    console.log(columns);
 
     // Creating new 'data.addRows' strings for each row in request body
     let rows = `data.addRows([`;
     function addingRows() {
         for (let j = 0; j < req.body['row'].length; j++) {
-            rows.concat(`['`, req.body['row'][j]['name'], `', `, req.body['row'][j]['value'],
-                `], `)
+            rows += `['` + req.body['row'][j]['name'] + `', ` + req.body['row'][j]['value'] + `], `;
         }
-        rows.concat(`]);`)
+        rows = rows.substring(0, rows.length - 2);
+        rows += `]);`;
     }
     addingRows();
 
@@ -60,22 +49,40 @@ app.post('/', async function (req, res){
         'height': req.body['option']['height'],
     };
 
-    // FIGURE OUT HOW TO SET CORRECT AMOUNT OF COLUMNS/ROWS
     const drawChart = `
-        var data = new google.visualization.DataTable();
+        const data = new google.visualization.DataTable();
         ${columns}
         ${rows}
     
         // Set chart options
-        var options = {'title':'${options['title']},
+        const options = {'title':'${options['title']}',
           'width':${options['width']},
           'height':${options['height']}};
     
         // Instantiate and draw our chart, passing in some options.
-        var chart = new google.visualization.PieChart(container);
+        const chart = new google.visualization.PieChart(container);
     
         chart.draw(data, options); 
     `;
+    console.log(drawChart);
+
+    /*
+    const drawChart = `
+      var data = new google.visualization.DataTable();
+      data.addColumn('string', 'Topping'); data.addColumn('number', 'Slices');
+      data.addRows([['Mushrooms', 3], ['Onions', 1], ['Olives', 1], ['Zucchini', 1], ['Pepperoni', 2]]);
+
+      // Set chart options
+      var options = {'title':'How Much Pizza I Ate Last Night',
+                     'width':400,
+                     'height':300};
+
+      // Instantiate and draw our chart, passing in some options.
+      var chart = new google.visualization.PieChart(document.getElementById('chart_div'));
+      chart.draw(data, options);
+    `;
+
+     */
 
     const image = await chartsNode.render(drawChart, {
         width: 400,
@@ -84,6 +91,7 @@ app.post('/', async function (req, res){
 
     fs.writeFileSync('./public/img/charts/chart.png', image);
     res.sendFile('/public/img/charts/chart.png', { root: __dirname });
+    console.log('Success! I think...');
 }); 
 
 app.post('/scatter', async function (req, res) {
